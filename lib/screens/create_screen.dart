@@ -21,14 +21,12 @@ class _CreateScreenState extends State<CreateScreen> {
   String imageUrl = "images/cat.svg";
   final habitTitleController = TextEditingController();
 
-  void createHabit(BuildContext context, String title, String imageUrl,
-      int notificationTime) {
-    print("createHabit called");
+  void createHabit(String title, String imageUrl, int notificationTime) {
     if (title != null) {
       if (title.isNotEmpty) {
         print("title is not empty");
         Habit habit = Habit(name: title, imageUrl: imageUrl);
-        final createCubit = context.bloc<CreateCubit>();
+        final createCubit = BlocProvider.of<CreateCubit>(context);
         createCubit.create(habit);
       }
     }
@@ -97,7 +95,7 @@ class _CreateScreenState extends State<CreateScreen> {
                     onPressed: () {
                       String title = habitTitleController.text;
                       print("FAB Pressed, title:$title");
-                      createHabit(context, title, imageUrl, notificationTime);
+                      createHabit(title, imageUrl, notificationTime);
                     },
                     child: Icon(Icons.check),
                   )

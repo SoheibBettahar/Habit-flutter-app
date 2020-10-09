@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:habit/cubit/create/create_cubit.dart';
 import 'package:habit/cubit/home/home_cubit.dart';
 import 'package:habit/models/habit.dart';
 import 'package:habit/screens/create_screen.dart';
@@ -15,10 +16,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  void getHabits(BuildContext context) {
-    print("HomeCubit Listener called");
+  Future<void> getHabits(BuildContext context) async {
     final homeCubit = context.bloc<HomeCubit>();
-    homeCubit.getHabits();
+    await homeCubit.getHabits();
   }
 
   @override
@@ -55,19 +55,31 @@ class _HomeScreenState extends State<HomeScreen> {
           onPressed: () {
             showModalBottomSheet(
               context: context,
-              builder: (context) => CreateScreen(),
+              builder: (context) => BlocProvider(
+                  create: (BuildContext context) => CreateCubit(),
+                  child: CreateScreen()),
             );
           },
         ),
         body: BlocBuilder<HomeCubit, HomeState>(
           builder: (context, state) {
-            if (state is HomeFilled) {
+            if (state is HomeLoaded) {
               return HabitsList(state.habitsList);
+            } else if (state is HomeLoading) {
+              return loading();
             } else {
               return EmptyState();
             }
           },
         ));
+  }
+
+  Widget loading() {
+    return Container(
+      child: Center(
+        child: Text("State Loading"),
+      ),
+    );
   }
 }
 
@@ -104,12 +116,13 @@ class HabitsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print("HabitList count: ${habits.length}");
     return Container(
       child: Center(
         child: Padding(
             padding: EdgeInsets.all(20),
             child: ListView.builder(
-              itemCount: 0,
+              itemCount: habits.length,
               itemBuilder: (context, index) {
                 final Habit habit = habits[index];
                 return ListItem(habit: habit);
@@ -127,14 +140,11 @@ class ListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Column(
-        children: [
-          Text("Title: ${habit.name}"),
-          Text("Consecutive Days: ${habit.days}/90"),
-          Text("Status: ${habit.status}"),
-        ],
-      ),
+    print(habit.toString());
+    return ListTile(
+      title: Text(habit.name),
+      subtitle: Text("Consecutive Days: ${habit.days}/90"),
+      trailing: Text("Status: ${habit.status}"),
     );
   }
 }

@@ -6,16 +6,16 @@ import 'package:meta/meta.dart';
 part 'home_state.dart';
 
 class HomeCubit extends Cubit<HomeState> {
-  final Repository _repository;
+  final Repository _repository = Repository.instance;
 
-  HomeCubit(this._repository) : super(HomeInitial());
+  HomeCubit() : super(HomeLoading());
 
   Future<void> getHabits() async {
     List<Habit> habits = await _repository.getHabits();
     if (habits.isNotEmpty) {
-      emit(HomeFilled(habitsList: habits));
+      emit(HomeLoaded(habitsList: habits));
     } else {
-      emit(HomeInitial());
+      emit(HomeEmpty());
     }
   }
 }

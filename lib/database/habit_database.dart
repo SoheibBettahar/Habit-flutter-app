@@ -1,72 +1,46 @@
 import 'package:habit/models/habit.dart';
-import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:habit/models/status.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 class HabitDatabase {
-  String _databaseName = 'habits_database.db';
-  String _tableName = 'habits';
+  static const String _HABITS_BOX = 'habits';
 
-  //private constructor
   HabitDatabase._();
 
-  static final db = HabitDatabase._();
-  Database _database;
+  static HabitDatabase _instance;
 
-  Future<Database> get database async {
-    if (_database != null) {
-      return _database;
-    }
-
-    _database = await initDatabase();
-
-    return _database;
+  static HabitDatabase get instance {
+    if (_instance == null) _instance = HabitDatabase._();
+    return _instance;
   }
 
-  Future<Database> initDatabase() async {
-    return openDatabase(
-      join(await getDatabasesPath(), _databaseName),
-      onCreate: (db, version) {
-        return db.execute(
-          "CREATE TABLE $_tableName(id INTEGER PRIMARY KEY, name TEXT, status INTEGER, imageUrl TEXT, days INTEGER, notificationTime INTEGER)",
-        );
-      },
-      version: 1,
-    );
+  Box<Habit> _box;
+
+  Future<void> initDatabase() async {
+    await Hive.initFlutter();
   }
 
-  Future<int> insertHabit(Habit habit) async {
-    print('insertHabit called: $habit');
-    final Database db = await database;
-    return await db.insert(
-      _tableName,
-      habit.toMap(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+  void close() async {
+    await _box.compact();
+    Hive.close();
   }
+
+  Future<void> openHabitsBox() async {
+    print("openHabitBox() called");
+    Hive.registerAdapter<Status>(StatusAdapter());
+    Hive.registerAdapter<Habit>(HabitAdapter());
+    _box = await Hive.openBox<Habit>(_HABITS_BOX);
+  }
+
+  Future<int> insertHabit(Habit habit) async => _box.add(habit);
+
+  Future<void> updateHabit(int index, Habit habit) => _box.putAt(index, habit);
+
+  Future<void> deleteHabit(int id) => _box.deleteAt(id);
 
   Future<List<Habit>> getHabits() async {
-    final Database db = await database;
-    var habitsMap = await db.query(_tableName);
-
-    return List.generate(habitsMap.length, (i) => Habit.fromMap(habitsMap[i]));
-  }
-
-  Future<Habit> getHabit(int id) async {
-    final Database db = await database;
-    var habitMap = await db.query(_tableName, where: 'id= ?', whereArgs: [id]);
-    return habitMap.isNotEmpty ? Habit.fromMap(habitMap.first) : null;
-  }
-
-  Future<int> updateHabit(Habit habit) async {
-    final Database db = await database;
-
-    return db.update(_tableName, habit.toMap(),
-        where: 'id= ?', whereArgs: [habit.id]);
-  }
-
-  Future<int> deleteHabit(int id) async {
-    final Database db = await database;
-
-    return await db.delete(_tableName, where: 'id= ?', whereArgs: [id]);
+    if (_box == null) await Hive.openBox<Habit>(_HABITS_BOX);
+    return _box.values.toList().cast<Habit>();
   }
 }

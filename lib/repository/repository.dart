@@ -2,16 +2,28 @@ import 'package:habit/database/habit_database.dart';
 import 'package:habit/models/habit.dart';
 
 class Repository {
-  Future<List<Habit>> getHabits() => HabitDatabase.db.getHabits();
+  Repository._();
 
-  Future<Habit> getHabit(int id) => HabitDatabase.db.getHabit(id);
+  static Repository _instance;
 
-  Future<int> insertHabit(Habit habit) async{
-   var result = await HabitDatabase.db.insertHabit(habit);
+  HabitDatabase database = HabitDatabase.instance;
+
+  static Repository get instance {
+    if (_instance == null) _instance = Repository._();
+    return _instance;
+  }
+
+  Future<List<Habit>> getHabits() async {
+    return await database.getHabits();
+  }
+
+  Future<int> insertHabit(Habit habit) async {
+    var result = await database.insertHabit(habit);
     return result;
   }
 
-  Future<int> updateHabit(Habit habit) => HabitDatabase.db.updateHabit(habit);
+  Future<int> updateHabit(int index, Habit habit) =>
+      database.updateHabit(index, habit);
 
-  Future<int> deleteHabit(int id) => HabitDatabase.db.deleteHabit(id);
+  Future<int> deleteHabit(int id) => database.deleteHabit(id);
 }

@@ -5,26 +5,29 @@ part of 'home_cubit.dart';
 abstract class HomeState {
   const HomeState();
 }
-
-class HomeInitial extends HomeState {
-  const HomeInitial();
+class HomeEmpty extends HomeState {
+  const HomeEmpty();
 }
 
-class HomeFilled extends HomeState {
+class HomeLoading extends HomeState {
+  const HomeLoading();
+}
+
+class HomeLoaded extends HomeState {
   final List<Habit> habitsList;
 
-  const HomeFilled({
+  const HomeLoaded({
     @required this.habitsList,
   });
 
-  HomeFilled copyWith({
+  HomeLoaded copyWith({
     List<Habit> habitsList,
   }) {
     if ((habitsList == null || identical(habitsList, this.habitsList))) {
       return this;
     }
 
-    return new HomeFilled(
+    return new HomeLoaded(
       habitsList: habitsList ?? this.habitsList,
     );
   }
@@ -37,7 +40,7 @@ class HomeFilled extends HomeState {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          (other is HomeFilled &&
+          (other is HomeLoaded &&
               runtimeType == other.runtimeType &&
               habitsList == other.habitsList);
 
