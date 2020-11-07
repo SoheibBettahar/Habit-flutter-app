@@ -39,7 +39,7 @@ class _CreateScreenState extends State<CreateScreen> {
         id = await habitsCubit.create(habit);
 
         DomainHabit domainHabit = habit.toDomainHabit(id);
-        await scheduleDailyNotificationTask(domainHabit);
+        await scheduleDailyUpdateTask(domainHabit);
         if (timeInSeconds != NOT_SET) {
           await scheduleReminderNotificationTask(domainHabit);
         }
@@ -122,7 +122,7 @@ class _CreateScreenState extends State<CreateScreen> {
                           });
                         }
                       },
-                      title: _iconPath == null ? CHOOSE_ICON : ICON_SELECTED,
+                      title: _iconPath == null ? CHOOSE_ICON_CREATE : ICON_SELECTED,
                       icon: Icon(
                         FontAwesomeIcons.solidHandRock,
                         size: 24,

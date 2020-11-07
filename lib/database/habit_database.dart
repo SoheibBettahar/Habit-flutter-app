@@ -55,7 +55,7 @@ class HabitDatabase {
     return _box.keys.toList().cast<int>();
   }
 
-  // Habit getHabit(int index) {
-  //   return _box.getAt(index);
-  // }
+  static Habit getHabit(int key) {
+    return _box.get(key);
+  }
 }

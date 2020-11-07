@@ -15,6 +15,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await HabitDatabase.initDatabase();
   await HabitDatabase.openHabitsBox();
+  //update all notes according to (using creationTime and DateTime.now()
+  //use FlutterNotificationHelper.scheduleNotification.
+  //don't use workManager
   bool isFirstTime = await getFirstTIme();
   await Workmanager.initialize(callbackDispatcher);
   await NotificationHelper.initNotifications();

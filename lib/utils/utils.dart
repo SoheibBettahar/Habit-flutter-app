@@ -56,36 +56,23 @@ void callbackDispatcher() {
     print("inputData: $inputData");
 
     if (taskName == REMINDER_NOTIFICATION_TASK ||
-        taskName == DAILY_NOTIFICATION_TASK) {
+        taskName == DAILY_UPDATE_TASK) {
       int id = inputData[ID] as int;
-      String name = inputData[NAME] as String;
-      String status = inputData[STATUS] as String;
-      String imageUrl = inputData[IMAGE_URL] as String;
-      int days = inputData[DAYS] as int;
-      int notificationTime = inputData[NOTIFICATION_TIME] as int;
-      Habit habit = Habit(
-          name: name,
-          status: Habit.fromStatus(status),
-          imageUrl: imageUrl,
-          days: days,
-          notificationTime: notificationTime);
+
+      await HabitDatabase.initDatabase();
+      await HabitDatabase.openHabitsBox();
+      Habit habit = HabitDatabase.getHabit(id);
+
       await NotificationHelper.initNotifications();
 
       if (taskName == REMINDER_NOTIFICATION_TASK) {
-        await NotificationHelper.showNotification(
-            id, "Habit", "Take it one day at a time, Good luck!.", name);
+        await NotificationHelper.showNotification(id, habit.name,
+            "Take it one day at a time, Good luck!.", habit.name);
       }
 
-      if (taskName == DAILY_NOTIFICATION_TASK) {
-        await HabitDatabase.initDatabase();
-        await HabitDatabase.openHabitsBox();
+      if (taskName == DAILY_UPDATE_TASK) {
         await HabitDatabase.updateHabit(
             id, habit.copyWith(days: habit.days + 1));
-        await NotificationHelper.showNotification(
-            id,
-            "Habit",
-            "Congratulations, you have completed another day. Validate your progress!",
-            name);
       }
     }
 
@@ -111,33 +98,23 @@ Future scheduleReminderNotificationTask(DomainHabit habit) async {
       tag: tag,
       inputData: {
         ID: habit.id,
-        NAME: habit.name,
-        STATUS: habit.getStatus,
-        IMAGE_URL: habit.imageUrl,
-        DAYS: habit.days,
-        NOTIFICATION_TIME: habit.notificationTime
       },
       frequency: Duration(minutes: 15),
-      initialDelay: Duration(minutes: 15),
+      initialDelay: Duration(minutes: initialDelayInSeconds),
       backoffPolicy: BackoffPolicy.exponential,
       backoffPolicyDelay: Duration(seconds: 10));
 }
 
 //this notification reminds the user to validate daily progress
-Future scheduleDailyNotificationTask(DomainHabit habit) async {
-  String uniqueName = "$DAILY_NOTIFICATION_TASK: ${habit.id}";
+Future scheduleDailyUpdateTask(DomainHabit habit) async {
+  String uniqueName = "$DAILY_UPDATE_TASK: ${habit.id}";
   String tag = habit.id.toString();
 
   await Workmanager.initialize(callbackDispatcher);
-  await Workmanager.registerPeriodicTask(uniqueName, DAILY_NOTIFICATION_TASK,
+  await Workmanager.registerPeriodicTask(uniqueName, DAILY_UPDATE_TASK,
       tag: tag,
       inputData: {
         ID: habit.id,
-        NAME: habit.name,
-        STATUS: habit.getStatus,
-        IMAGE_URL: habit.imageUrl,
-        DAYS: habit.days,
-        NOTIFICATION_TIME: habit.notificationTime
       },
       frequency: Duration(minutes: 15),
       initialDelay: Duration(minutes: 15),

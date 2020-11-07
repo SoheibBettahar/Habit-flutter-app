@@ -9,7 +9,8 @@ const SHOW_NOTIFICATION = "Show Notification";
 const DELETE = "Delete";
 const UPDATE = "Update";
 const NOTIFICATION = 'Remind \nwith a notification';
-const CHOOSE_ICON = 'Choose \nan icon';
+const CHOOSE_ICON_CREATE = 'Choose \nan icon';
+const CHOOSE_ICON = 'Choose an icon';
 const ICON_SELECTED = "Icon\nselected";
 const START = "Start";
 const NOT_SET = -1;
@@ -23,7 +24,7 @@ const DAYS = "days";
 const NOTIFICATION_TIME = "notification_time";
 
 const REMINDER_NOTIFICATION_TASK = "reminder_notification_task";
-const DAILY_NOTIFICATION_TASK = "daily_notification_task";
+const DAILY_UPDATE_TASK = "daily_update_task";
 const IS_FIRST_TIME_PREF_KEY = "is_first_time";
 
 const List<OnBoardingPage> onBoardingPages = [
