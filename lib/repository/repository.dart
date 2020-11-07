@@ -1,29 +1,38 @@
 import 'package:habit/database/habit_database.dart';
+import 'package:habit/models/domain_habit.dart';
 import 'package:habit/models/habit.dart';
+import 'package:habit/utils/utils.dart';
 
 class Repository {
   Repository._();
 
   static Repository _instance;
 
-  HabitDatabase database = HabitDatabase.instance;
-
   static Repository get instance {
     if (_instance == null) _instance = Repository._();
     return _instance;
   }
 
-  Future<List<Habit>> getHabits() async {
-    return await database.getHabits();
+  Future<List<DomainHabit>> getHabits() async {
+    List<Habit> habits = await HabitDatabase.getHabits();
+    List<int> keys = await HabitDatabase.getKeys();
+
+    return toDomainList(keys, habits);
   }
 
   Future<int> insertHabit(Habit habit) async {
-    var result = await database.insertHabit(habit);
-    return result;
+    var id = await HabitDatabase.insertHabit(habit);
+    return id;
   }
 
-  Future<int> updateHabit(int index, Habit habit) =>
-      database.updateHabit(index, habit);
+  Future<void> updateHabit(int id, DomainHabit domain) =>
+      HabitDatabase.updateHabit(id, domain.toHabit());
 
-  Future<int> deleteHabit(int id) => database.deleteHabit(id);
+  Future<void> deleteByIndex(int index) async {
+    await HabitDatabase.deleteAt(index);
+  }
+
+  Future<void> delete(int id) async {
+    await HabitDatabase.delete(id);
+  }
 }

@@ -15,32 +15,47 @@ class HabitDatabase {
     return _instance;
   }
 
-  Box<Habit> _box;
+  static Box<Habit> _box;
 
-  Future<void> initDatabase() async {
+  static Future<void> initDatabase() async {
     await Hive.initFlutter();
   }
 
-  void close() async {
+  static void close() async {
     await _box.compact();
     Hive.close();
   }
 
-  Future<void> openHabitsBox() async {
+  static Future<void> openHabitsBox() async {
     print("openHabitBox() called");
     Hive.registerAdapter<Status>(StatusAdapter());
     Hive.registerAdapter<Habit>(HabitAdapter());
     _box = await Hive.openBox<Habit>(_HABITS_BOX);
   }
 
-  Future<int> insertHabit(Habit habit) async => _box.add(habit);
+  static Future<int> insertHabit(Habit habit) async => _box.add(habit);
 
-  Future<void> updateHabit(int index, Habit habit) => _box.putAt(index, habit);
+  static Future<void> updateHabit(int id, Habit habit) => _box.put(id, habit);
 
-  Future<void> deleteHabit(int id) => _box.deleteAt(id);
+  static Future<void> deleteAt(int index) async {
+    await _box.deleteAt(index);
+  }
 
-  Future<List<Habit>> getHabits() async {
+  static Future<void> delete(int key) async {
+    await _box.delete(key);
+  }
+
+  static Future<List<Habit>> getHabits() async {
     if (_box == null) await Hive.openBox<Habit>(_HABITS_BOX);
     return _box.values.toList().cast<Habit>();
   }
+
+  static Future<List<int>> getKeys() async {
+    if (_box == null) await Hive.openBox<Habit>(_HABITS_BOX);
+    return _box.keys.toList().cast<int>();
+  }
+
+  // Habit getHabit(int index) {
+  //   return _box.getAt(index);
+  // }
 }

@@ -28,9 +28,17 @@ var secondaryColor = MaterialColor(0xFFEC615B, const <int, Color>{
 var blurredColor = Color(0xff757575);
 
 var onBoardingButtonColor = Color(0xFF5222D0);
-var listItemBackgroundColor = Color(0xFFFAFAFA);
+// var listItemBackgroundColor = Color(0xFFFAFAFA);
+var listItemBackgroundColor = Color(0xFFF5F5F5);
+// var listItemBackgroundColor = Color(0xFFEEEEEE);
+// var listItemBackgroundColor = Color(0xFFE0E0E0);
 var listProgressBarFilledColor = Color(0xFFE05F59);
 var listItemProgressBarEmptyColor = Color(0xFFC4C4C4);
 var createBackgroundColor = Color(0xFF4D28AE);
 var detailButtonFillColor = Color(0xFFD65E73);
 var detailButtonProgressColor = Color(0xFF5222D0);
+
+var listItemPaddingVertical = 12.0;
+var listItemPaddingHorizontal = 12.0;
+
+

@@ -2,11 +2,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:habit/cubit/create/create_cubit.dart';
-import 'package:habit/cubit/home/home_cubit.dart';
-import 'package:habit/models/habit.dart';
+import 'package:habit/cubit/habits/habits_cubit.dart';
+import 'package:habit/models/domain_habit.dart';
 import 'package:habit/screens/create_screen.dart';
 import 'package:habit/utils/constants.dart';
+import 'package:habit/utils/styles.dart';
+import 'package:habit/utils/utils.dart';
+import 'package:habit/widgets/list_item.dart';
+import 'package:workmanager/workmanager.dart';
 
 class HomeScreen extends StatefulWidget {
   static const String id = "home_screen";
@@ -16,15 +19,17 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  Future<void> getHabits(BuildContext context) async {
-    final homeCubit = context.bloc<HomeCubit>();
-    await homeCubit.getHabits();
+  navigateToAboutUs() {
+    print("navigateToAboutUs() called");
+    // navigate to about us
   }
 
-  @override
-  void initState() {
-    super.initState();
-    getHabits(context);
+  Future scheduleDummyNotification() async {
+    await Workmanager.initialize(callbackDispatcher);
+    await Workmanager.registerPeriodicTask("test_workertask", "test_workertask",
+        inputData: {"data1": "value1", "data2": "value2"},
+        frequency: Duration(hours: 1),
+        initialDelay: Duration(hours: 1));
   }
 
   @override
@@ -34,20 +39,23 @@ class _HomeScreenState extends State<HomeScreen> {
         appBar: AppBar(
           title: Text(HABIT),
           actions: <Widget>[
-            Padding(
-              padding: EdgeInsets.only(right: 24.0),
-              child: Icon(
-                Icons.search,
-                size: 24.0,
-              ),
+            Icon(
+              Icons.search,
+              size: 24.0,
             ),
-            Padding(
-              padding: EdgeInsets.only(right: 16.0),
-              child: Icon(
-                Icons.more_vert,
-                size: 24.0,
-              ),
-            ),
+            PopupMenuButton<HomeAction>(
+                onSelected: (type) async {
+                  if (type == HomeAction.aboutUs) navigateToAboutUs();
+                  if (type == HomeAction.showNotification)
+                    await scheduleDummyNotification();
+                },
+                itemBuilder: (context) => <PopupMenuEntry<HomeAction>>[
+                      const PopupMenuItem<HomeAction>(
+                          value: HomeAction.aboutUs, child: Text(ABOUT_US)),
+                      const PopupMenuItem<HomeAction>(
+                          value: HomeAction.showNotification,
+                          child: Text(SHOW_NOTIFICATION)),
+                    ])
           ],
         ),
         floatingActionButton: FloatingActionButton(
@@ -55,17 +63,15 @@ class _HomeScreenState extends State<HomeScreen> {
           onPressed: () {
             showModalBottomSheet(
               context: context,
-              builder: (context) => BlocProvider(
-                  create: (BuildContext context) => CreateCubit(),
-                  child: CreateScreen()),
+              builder: (context) => CreateScreen(),
             );
           },
         ),
-        body: BlocBuilder<HomeCubit, HomeState>(
+        body: BlocBuilder<HabitsCubit, HabitsState>(
           builder: (context, state) {
-            if (state is HomeLoaded) {
+            if (state is HabitsLoaded) {
               return HabitsList(state.habitsList);
-            } else if (state is HomeLoading) {
+            } else if (state is HabitsLoading) {
               return loading();
             } else {
               return EmptyState();
@@ -93,7 +99,7 @@ class EmptyState extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              SvgPicture.asset("images/cat.svg"),
+              SvgPicture.asset("dev_images/cat.svg"),
               Text(
                 NO_HABITS_CREATED,
                 style: TextStyle(
@@ -110,41 +116,29 @@ class EmptyState extends StatelessWidget {
 }
 
 class HabitsList extends StatelessWidget {
-  final List<Habit> habits;
+  final List<DomainHabit> habits;
 
   HabitsList(this.habits);
 
   @override
   Widget build(BuildContext context) {
     print("HabitList count: ${habits.length}");
-    return Container(
-      child: Center(
-        child: Padding(
-            padding: EdgeInsets.all(20),
-            child: ListView.builder(
-              itemCount: habits.length,
-              itemBuilder: (context, index) {
-                final Habit habit = habits[index];
-                return ListItem(habit: habit);
-              },
-            )),
-      ),
+    return ListView.builder(
+      padding: EdgeInsets.only(
+          right: listItemPaddingHorizontal,
+          left: listItemPaddingHorizontal,
+          top: listItemPaddingVertical),
+      clipBehavior: Clip.hardEdge,
+      itemCount: habits.length,
+      itemBuilder: (context, index) {
+        final DomainHabit habit = habits[index];
+        return ListItem(
+          habit: habit,
+          index: index,
+        );
+      },
     );
   }
 }
 
-class ListItem extends StatelessWidget {
-  final Habit habit;
-
-  ListItem({this.habit});
-
-  @override
-  Widget build(BuildContext context) {
-    print(habit.toString());
-    return ListTile(
-      title: Text(habit.name),
-      subtitle: Text("Consecutive Days: ${habit.days}/90"),
-      trailing: Text("Status: ${habit.status}"),
-    );
-  }
-}
+enum HomeAction { aboutUs, showNotification }
