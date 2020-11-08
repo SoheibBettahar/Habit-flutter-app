@@ -105,7 +105,7 @@ Future scheduleReminderNotificationTask(DomainHabit habit) async {
       backoffPolicyDelay: Duration(seconds: 10));
 }
 
-//this notification reminds the user to validate daily progress
+//daily progress task
 Future scheduleDailyUpdateTask(DomainHabit habit) async {
   String uniqueName = "$DAILY_UPDATE_TASK: ${habit.id}";
   String tag = habit.id.toString();
