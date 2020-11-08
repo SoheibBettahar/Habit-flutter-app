@@ -18,5 +18,10 @@ The architecture used to create this app is __BLOC__, it seperated the app into 
 
 
 
+## Problem
+I am scheduling periodic background work (notification that appear in the future, updating the database). The problem is the worktasks are executed only when the app is in the foreground or background. when the app is closed the tasks does not get executed.
+
+
+.
 
 
