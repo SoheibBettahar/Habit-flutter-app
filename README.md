@@ -1,6 +1,5 @@
 # Habit
-An app that lets you create letters, lock them in a vault so that you can read them in the future.
-In this document I'm going to break down the overall structure of the app.
+An app that lets you create habits, recieve notifications about them and track your progress, to build new good habits or get rid of bad ones.
 
 ## Screens
 Habit is composed of five Screens: 
