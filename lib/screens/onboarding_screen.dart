@@ -45,7 +45,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
               // open homeScreen
               Navigator.pushReplacement(context,
                   MaterialPageRoute(builder: (context) => HomeScreen()));
-              setFirstTIme();
+              setFirstTime();
             },
           ),
         ],

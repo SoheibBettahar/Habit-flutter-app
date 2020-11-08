@@ -14,7 +14,7 @@ Future<bool> getFirstTIme() async {
   return isFirstTime;
 }
 
-Future setFirstTIme() async {
+Future setFirstTime() async {
   await SharedPreferences.getInstance()
     ..setBool(IS_FIRST_TIME_PREF_KEY, false);
 }

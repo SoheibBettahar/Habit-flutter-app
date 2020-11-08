@@ -24,14 +24,6 @@ class _HomeScreenState extends State<HomeScreen> {
     // navigate to about us
   }
 
-  Future scheduleDummyNotification() async {
-    await Workmanager.initialize(callbackDispatcher);
-    await Workmanager.registerPeriodicTask("test_workertask", "test_workertask",
-        inputData: {"data1": "value1", "data2": "value2"},
-        frequency: Duration(hours: 1),
-        initialDelay: Duration(hours: 1));
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,8 +38,9 @@ class _HomeScreenState extends State<HomeScreen> {
             PopupMenuButton<HomeAction>(
                 onSelected: (type) async {
                   if (type == HomeAction.aboutUs) navigateToAboutUs();
-                  if (type == HomeAction.showNotification)
-                    await scheduleDummyNotification();
+                  if (type == HomeAction.showNotification){
+                    //show dummy notification
+                  }
                 },
                 itemBuilder: (context) => <PopupMenuEntry<HomeAction>>[
                       const PopupMenuItem<HomeAction>(
